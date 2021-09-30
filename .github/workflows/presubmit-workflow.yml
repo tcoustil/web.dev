@@ -18,10 +18,15 @@ jobs:
         run: npm ci
 
       - name: Check if presubmit
+        id: presubmit
         uses: ./.github/actions/presubmit
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           is_presubmit: ${{ contains(github.event.pull_request.labels.*.name, '$-presubmit') }}
+
+      - name: Cancel if not presubmit
+        uses: andymckay/cancel-action@0.2
+        if: ${{ steps.presubmit.outputs.isPresubmit == 'false' }}
 
       - name: Run a staging build of site
         run: npm run build
